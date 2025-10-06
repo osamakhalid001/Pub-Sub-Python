@@ -18,8 +18,8 @@ import rclpy
 from rclpy.node import Node
 from example_interfaces.msg import String
 from unittest.mock import patch
-import pytest
 from my_py_pkg.smartphone import SmartphoneNode  # Adjust import based on your package structure
+
 
 class TestSmartphoneNode(unittest.TestCase):
     @classmethod
@@ -46,24 +46,23 @@ class TestSmartphoneNode(unittest.TestCase):
     def test_node_initialization(self):
         """Test that SmartphoneNode initializes with correct name and subscription."""
         self.assertEqual(self.smartphone_node.get_name(), "smartphone")
-        #subscriptions = self.smartphone_node.get_subscription_names()
-        #self.assertIn("robot_news", subscriptions)
+        # subscriptions = self.smartphone_node.get_subscription_names()
+        # self.assertIn("robot_news", subscriptions)
         self.assertIsNotNone(self.smartphone_node.subscriber_)
         self.assertEqual(self.smartphone_node.subscriber_.topic_name, "/robot_news")
-
 
     @patch.object(SmartphoneNode, 'get_logger')
     def test_callback_robot_news(self, mock_get_logger):
         """Test that callback_robot_news logs the received message."""
         test_message = String()
         test_message.data = "Test robot news"
-        
+
         # Publish the test message
         self.publisher.publish(test_message)
-        
+
         # Spin once to process callbacks
         rclpy.spin_once(self.smartphone_node, timeout_sec=0.1)
-        
+
         # Verify that the logger was called with the correct message
         mock_get_logger.return_value.info.assert_called_once_with("Test robot news")
 

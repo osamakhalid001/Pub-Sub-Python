@@ -34,4 +34,27 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+# Testing
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  
+  # Add gtest for each test file
+  ament_add_gtest(test_number_counter test/test_number_counter.cpp)
+  if(TARGET test_number_counter)
+    target_link_libraries(test_number_counter ${rclcpp_LIBRARIES})
+    ament_target_dependencies(test_number_counter rclcpp)
+  endif()
+  
+  # Add more tests as needed
+  # ament_add_gtest(test_number_publisher test/test_number_publisher.cpp)
+  # if(TARGET test_number_publisher)
+  #   target_link_libraries(test_number_publisher ${rclcpp_LIBRARIES})
+  #   ament_target_dependencies(test_number_publisher rclcpp example_interfaces)
+  # endif()
+  
+  # Linting tests
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
 ament_package()
