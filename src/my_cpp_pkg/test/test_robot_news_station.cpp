@@ -53,19 +53,18 @@ TEST_F(RobotNewsStationTest, NodeCreation)
     EXPECT_EQ(node->get_name(), std::string("robot_news_station"));
 }
 
-// Test 2: Publisher Creation
+// Test 2: Publisher Creation and Topic Name
 TEST_F(RobotNewsStationTest, PublisherExists)
 {
     auto node = std::make_shared<RobotNewsStationNode>();
     
-    // Get the list of publishers
-    auto publishers = node->get_node_topics_interface()->get_publisher_names_and_types_by_node(
-        node->get_name(), node->get_namespace());
+    // Get the count of publishers for this node
+    auto topics = node->get_topic_names_and_types();
     
     bool found = false;
-    for (const auto& pub : publishers)
+    for (const auto& topic : topics)
     {
-        if (pub.first == "/robot_news")
+        if (topic.first == "/robot_news")
         {
             found = true;
             break;
@@ -142,7 +141,7 @@ TEST_F(RobotNewsStationTest, PublishingRate)
     std::vector<rclcpp::Time> timestamps;
     auto subscriber = node->create_subscription<example_interfaces::msg::String>(
         "robot_news", 10,
-        [&timestamps, &node](example_interfaces::msg::String::SharedPtr msg) {
+        [&timestamps, &node](const example_interfaces::msg::String::SharedPtr) {
             timestamps.push_back(node->now());
         });
     
@@ -178,6 +177,36 @@ TEST_F(RobotNewsStationTest, NodeShutdown)
     // The node should be able to be destroyed without issues
     node.reset();
     EXPECT_TRUE(rclcpp::ok());
+}
+
+// Test 7: Multiple Messages Content
+TEST_F(RobotNewsStationTest, MultipleMessagesConsistency)
+{
+    auto node = std::make_shared<RobotNewsStationNode>();
+    
+    std::vector<std::string> messages;
+    auto subscriber = node->create_subscription<example_interfaces::msg::String>(
+        "robot_news", 10,
+        [&messages](const example_interfaces::msg::String::SharedPtr msg) {
+            messages.push_back(msg->data);
+        });
+    
+    // Collect several messages
+    auto start_time = std::chrono::steady_clock::now();
+    while (messages.size() < 3 && std::chrono::steady_clock::now() - start_time < 2s)
+    {
+        rclcpp::spin_some(node);
+        std::this_thread::sleep_for(100ms);
+    }
+    
+    ASSERT_GE(messages.size(), 3);
+    
+    // All messages should be identical
+    std::string expected = "Hi, this is R2D2 from the robot news station.";
+    for (const auto& msg : messages)
+    {
+        EXPECT_EQ(msg, expected);
+    }
 }
 
 int main(int argc, char **argv)

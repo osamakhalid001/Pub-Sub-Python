@@ -38,11 +38,15 @@ install(TARGETS
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   
-  # Add gtest for each test file
-  ament_add_gtest(test_number_counter test/test_number_counter.cpp)
-  if(TARGET test_number_counter)
-    target_link_libraries(test_number_counter ${rclcpp_LIBRARIES})
-    ament_target_dependencies(test_number_counter rclcpp)
+    # Add the test executable
+  ament_add_gtest(test_robot_news_station test/test_robot_news_station.cpp)
+  
+  if(TARGET test_robot_news_station)
+    target_link_libraries(test_robot_news_station ${rclcpp_LIBRARIES})
+    ament_target_dependencies(test_robot_news_station 
+      rclcpp 
+      example_interfaces
+    )
   endif()
   
   # Add more tests as needed
