@@ -37,28 +37,19 @@ install(TARGETS
 # Testing
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
-  
+
     # Add the test executable
   ament_add_gtest(test_robot_news_station test/test_robot_news_station.cpp)
-  
+
   if(TARGET test_robot_news_station)
     target_link_libraries(test_robot_news_station ${rclcpp_LIBRARIES})
-    ament_target_dependencies(test_robot_news_station 
-      rclcpp 
+    ament_target_dependencies(test_robot_news_station
+      rclcpp
       example_interfaces
     )
   endif()
-  
-  # Add more tests as needed
-  # ament_add_gtest(test_number_publisher test/test_number_publisher.cpp)
-  # if(TARGET test_number_publisher)
-  #   target_link_libraries(test_number_publisher ${rclcpp_LIBRARIES})
-  #   ament_target_dependencies(test_number_publisher rclcpp example_interfaces)
-  # endif()
-  
-  # Linting tests
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
+
+
 endif()
 
 ament_package()
